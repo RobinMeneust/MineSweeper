@@ -22,6 +22,15 @@ int getInteger()
 	}
 }
 
+IntPoint createIntPoint(int x, int y)
+{
+	IntPoint point;
+
+	point.x = x;
+	point.y = y;
+	return point;
+}
+
 void init(Board *board)
 {
 	int nbAddedMines = 0;
@@ -32,6 +41,11 @@ void init(Board *board)
 	// If the last activated mine coordinates are negative it means it's not initialized, no mine has exploded.
 	board->lastActivatedMineCoord.x = -1;
 	board->lastActivatedMineCoord.y = -1;
+	
+	board->nbDiscoveredCells = 0;
+	board->nbDiscoveredCellsAtEnd = board->height * board->width - board->nbMines;
+	board->nbMarkedCells = 0;
+
 
 	srand(time(NULL));
 
@@ -90,6 +104,7 @@ void init(Board *board)
 				exit(EXIT_FAILURE);
 			}
 		}
+		printf("MINE : %d %d \n", i, j);
 		nbAddedMines++;
 	}
 
@@ -168,12 +183,16 @@ void displayBoard(Board board)
 		for (int j = 0; j < board.width; j++)
 		{
 			printf("|");
-			if (board.cells[i][j].isDiscovered)
+			if (board.cells[i][j].isMarked)
 			{
+				printf(" F ");
+			}
+			else if (board.cells[i][j].isDiscovered || board.lastActivatedMineCoord.x >= 0)
+			{
+				// Is discovered or we lost (a mine has exploded)
 				if (board.cells[i][j].isMine)
 				{
-					// if this coordinate is negative it means it wasn't initialized, thus no mine has exploded
-					if (board.lastActivatedMineCoord.x >= 0)
+					if (i == board.lastActivatedMineCoord.y && j == board.lastActivatedMineCoord.x)
 					{
 						printf(" @ ");
 					}
@@ -189,11 +208,7 @@ void displayBoard(Board board)
 			}
 			else
 			{
-				if (board.cells[i][j].isMarked)
-				{
-					printf(" F ");
-				}
-				else if (board.cells[i][j].doDisplayNearMines)
+				if (board.cells[i][j].doDisplayNearMines)
 				{
 					printf(" %d ", board.cells[i][j].nearMines);
 				}
@@ -212,51 +227,129 @@ void displayBoard(Board board)
 		printf("+---");
 	}
 	printf("+\n");
-}
 
-int play(Board** board, int moveType, IntPoint cell)
-{
-	if(moveType == 0){
-		// The cell is being discovered
-
+	if(board.lastActivatedMineCoord.x >=0 ){
+		printf("BOOUUUUUMMMMMM !!!!!\n");
+	}
+	else if(board.nbDiscoveredCells == board.nbDiscoveredCellsAtEnd){
+		printf("Felicitation !!\n");
 	}
 	else{
-		// The cell is being marked
-		
+		printf("Mines : %d/%d\n", board.nbMarkedCells, board.nbMines);
 	}
+}
+
+void enqueueNeighbors(Board board, IntPoint cell, Queue* cellsToCheck)
+{
+	if(cell.x > 0){
+		if(!board.cells[cell.x - 1][cell.y].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x - 1, cell.y))){
+			enqueue(cellsToCheck, createIntPoint(cell.x - 1, cell.y));
+		}
+		if(cell.y > 0){
+			if(!board.cells[cell.x - 1][cell.y - 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x - 1, cell.y - 1))){
+				enqueue(cellsToCheck, createIntPoint(cell.x - 1, cell.y - 1));
+			}
+		}
+		if(cell.y < board.height){
+			if(!board.cells[cell.x - 1][cell.y + 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x - 1, cell.y + 1))){
+				enqueue(cellsToCheck, createIntPoint(cell.x - 1, cell.y + 1));
+			}
+		}
+	}
+	if(cell.x < board.width){
+		if(!board.cells[cell.x + 1][cell.y].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x + 1, cell.y))){
+			enqueue(cellsToCheck, createIntPoint(cell.x + 1, cell.y));
+		}
+		if(cell.y > 0){
+			if(!board.cells[cell.x + 1][cell.y - 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x + 1, cell.y - 1))){
+				enqueue(cellsToCheck, createIntPoint(cell.x + 1, cell.y - 1));
+			}
+		}
+		if(cell.y < board.height){
+			if(!board.cells[cell.x + 1][cell.y + 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x + 1, cell.y + 1))){
+				enqueue(cellsToCheck, createIntPoint(cell.x + 1, cell.y + 1));
+			}
+		}
+	}
+	if(cell.y > 0 && !board.cells[cell.x][cell.y - 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x, cell.y - 1))){
+		enqueue(cellsToCheck, createIntPoint(cell.x, cell.y - 1));
+	}
+	if(cell.y < board.height && !board.cells[cell.x][cell.y + 1].isDiscovered && !isInQueue(*cellsToCheck, createIntPoint(cell.x, cell.y - 1))){
+		enqueue(cellsToCheck, createIntPoint(cell.x, cell.y + 1));
+	}
+}
+
+void play(Board* board, int moveType, IntPoint cell)
+{
+	Queue cellsToCheck;
+
+	initQueue(&cellsToCheck);
+
+	if(moveType == 0){
+		// The cell is being discovered
+		if(board->cells[cell.y][cell.x].isMine){
+			board->lastActivatedMineCoord.x = cell.x;
+			board->lastActivatedMineCoord.y = cell.y;
+		}
+		else{
+			enqueue(&cellsToCheck, cell);
+
+			while(cellsToCheck.front != NULL){
+				cell = dequeue(&cellsToCheck);
+				board->cells[cell.y][cell.x].isDiscovered = 1;
+				board->nbDiscoveredCells++;
+
+				printf("board->cells[%d][%d].nearMines = %d\n", cell.x, cell.y, board->cells[cell.y][cell.x].nearMines );
+				if(board->cells[cell.y][cell.x].nearMines > 0){
+					board->cells[cell.y][cell.x].doDisplayNearMines = 1;
+				}
+				else{
+					enqueueNeighbors(*board, cell, &cellsToCheck);
+				}
+			}			
+		}
+	}
+	else{
+		// The cell is being marked/unmarked
+		if(board->cells[cell.y][cell.x].isMarked){
+			board->cells[cell.y][cell.x].isMarked = 0;
+			board->nbMarkedCells--;
+		}
+		else{
+			board->cells[cell.y][cell.x].isMarked = 1;
+			board->nbMarkedCells++;
+		}
+	}
+
+	freeQueue(&cellsToCheck);
 }
 
 void start(Board *board)
 {
-	int status = 0;
 	int moveType = 0;
 	IntPoint cell;
 
 	cell.x = 0;
 	cell.y = 0;
 
-	while (status == 0)
+	displayBoard(*board);
+
+	while(board->lastActivatedMineCoord.x < 0 && board->nbDiscoveredCells < board->nbDiscoveredCellsAtEnd)
 	{
-		printf("\nChoose a number between 0 and 1:\n0: Discover the cell\n1: Mark the cell\nAnswer: ");
-		moveType = getInteger();
-		if (moveType != 0 && moveType != 1)
-		{
-			fprintf(stderr, "ERROR: You must enter 0 or 1\n");
-			exit(EXIT_FAILURE);
-		}
-		printf("\nYour move:\nChoose a number between 0 and %d for the x coordinate: ", board->width - 1);
-		cell.x = getInteger();
+		do{
+			printf("\nChoose a number between 0 and 1:\n0: Discover the cell\n1: Mark/unmark the cell\nAnswer: ");
+			moveType = getInteger();
+		}while(moveType != 0 && moveType != 1);
+		
+		do{
+			printf("\nYour move:\nChoose a number between 0 and %d for the x coordinate: ", board->width - 1);
+			cell.x = getInteger();
 
-		printf("\nChoose a number between 0 and %d for the y coordinate: ", board->height - 1);
-		cell.y = getInteger();
+			printf("\nChoose a number between 0 and %d for the y coordinate: ", board->height - 1);
+			cell.y = getInteger();
+		}while(cell.x<0 || cell.y<0 || cell.x>=board->width || cell.y>=board->height);
 
-		if (cell.x<0 || cell.y<0 || cell.x>=board->width || cell.y>=board->height)
-		{
-			fprintf(stderr, "ERROR: You must enter coordinates that are in the board: positive integers lesser than the board size\n");
-			exit(EXIT_FAILURE);
-		}
-
-		status = play(&board, moveType, cell);
-		refresh(&board);
+		play(board, moveType, cell);
+		displayBoard(*board);
 	}
 }

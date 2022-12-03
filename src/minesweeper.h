@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "queue.h"
+#include "point.h"
 
 typedef struct Cell
 {
@@ -14,25 +16,23 @@ typedef struct Cell
 	int doDisplayNearMines;
 }Cell;
 
-typedef struct IntPoint
-{
-	int x;
-	int y;
-}IntPoint;
-
 typedef struct Board
 {
 	Cell **cells;
 	int height;
 	int width;
 	int nbMines;
+	int nbDiscoveredCells;
+	int nbDiscoveredCellsAtEnd;
+	int nbMarkedCells;
 	IntPoint lastActivatedMineCoord;
 }Board;
 
 int getInteger();
+IntPoint createIntPoint(int x, int y);
 void init(Board *board);
 void displayBoard(Board board);
-int play(Board* board, int moveType, IntPoint cell);
+void play(Board* board, int moveType, IntPoint cell);
 void start(Board *board);
 
 #endif

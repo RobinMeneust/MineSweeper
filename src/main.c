@@ -17,14 +17,20 @@ int main(int argc, char **argv)
 	board.height = 0;
 	board.nbMines = 0;
 
-	printf("Board width: ");
+	printf("Board width (>0): ");
 	board.width = getInteger();
-	printf("\nBoard height: ");
+	printf("\nBoard height (>0): ");
 	board.height = getInteger();
-	printf("\nBoard nbMines: ");
+
+	if(board.width < 1 || board.height < 1){
+		fprintf(stderr, "ERROR: width and height can't be lesser than 1\n");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("\nBoard nbMines (>0): ");
 	board.nbMines = getInteger();
 	
-	if(board.width*board.height < board.nbMines){
+	if(board.nbMines < 1 || board.width*board.height < board.nbMines){
 		fprintf(stderr, "ERROR: the number of mines can't be greater than the number of cells in the board\n");
 		exit(EXIT_FAILURE);
 	}
@@ -46,6 +52,11 @@ int main(int argc, char **argv)
 
 	init(&board);
 	start(&board);
+
+	for(int i=0; i<board.height; i++){
+        free(board.cells[i]);
+    }
+	free(board.cells);
 
 	return 0;
 }
