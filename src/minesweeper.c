@@ -12,8 +12,7 @@ int getInteger()
 	int testScanf = 0; // value returned by scanf. Used to test if the integer was correctly read
 
 	testScanf = scanf("%d", &n);
-	while ((cFlush = getchar()) != '\n' && cFlush != EOF)
-		; // we flush stdin
+	while ((cFlush = getchar()) != '\n' && cFlush != EOF); // we flush stdin
 	if (testScanf != 0)
 		return n;
 	else
@@ -217,7 +216,14 @@ void displayBoard(Board board)
 
 int play(Board** board, int moveType, IntPoint cell)
 {
-	
+	if(moveType == 0){
+		// The cell is being discovered
+
+	}
+	else{
+		// The cell is being marked
+		
+	}
 }
 
 void start(Board *board)

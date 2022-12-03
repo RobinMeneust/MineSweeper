@@ -32,6 +32,7 @@ typedef struct Board
 int getInteger();
 void init(Board *board);
 void displayBoard(Board board);
+int play(Board* board, int moveType, IntPoint cell);
 void start(Board *board);
 
 #endif
