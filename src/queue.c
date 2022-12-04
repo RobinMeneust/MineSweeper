@@ -61,8 +61,7 @@ IntPoint dequeue(Queue *queue)
 	IntPoint element;
 	if(queue->front!=NULL)
 	{
-		element.x = queue->front->element.x;
-		element.y = queue->front->element.y;
+		element = queue->front->element;
 		p = queue->front;
 		queue->front = queue->front->next;
 		free(p);
@@ -92,7 +91,7 @@ int isInQueue(Queue queue, IntPoint elmnt)
 	Node* p = queue.front;
 
 	while(p != NULL){
-		if(p->element.x != elmnt.x && p->element.y != elmnt.y){
+		if(p->element.x == elmnt.x && p->element.y == elmnt.y){
 			return 1;
 		}
 		p = p->next;
