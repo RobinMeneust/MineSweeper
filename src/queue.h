@@ -1,3 +1,11 @@
+/**
+ * @file queue.h
+ * @author Robin MENEUST
+ * @brief Function prototypes and types needed by queue.c
+ * @version 0.1
+ * @date 2022-12-05
+ */
+
 #ifndef QUEUE_H
 #define QUEUE_H
 
@@ -6,14 +14,24 @@
 #include "minesweeper.h"
 #include "point.h"
 
+/**
+ * @struct Node 
+ * @brief Node of a linked list, containing IntPoint elements
+ */
+
 typedef struct Node{
-	IntPoint element;
-	struct Node* next;
+	IntPoint element; /*!< Element of the node*/
+	struct Node* next; /*!< Pointer to the next node in the list*/
 }Node;
 
+/**
+ * @struct Queue
+ * @brief Queue of nodes
+ */
+
 typedef struct Queue{
-	Node* front;
-	Node* rear;
+	Node* front; /*!< Pointer to the front node of the queue, where elements are dequeued*/
+	Node* rear; /*!< Pointer to the rear node of the queue, where elements are enqueued*/
 }Queue;
 
 void initQueue(Queue *queue);
@@ -21,8 +39,6 @@ void freeQueue(Queue *queue);
 Node* createNode();
 void enqueue(Queue *queue, IntPoint x);
 IntPoint dequeue(Queue *queue);
-IntPoint peekFront(Queue queue);
-void displayQueue(Queue queue);
 int isInQueue(Queue queue, IntPoint elmnt);
 
 #endif

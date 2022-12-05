@@ -1,7 +1,15 @@
+/**
+ * @file minesweeper.c
+ * @author Robin MENEUST
+ * @brief Functions used to play a minesweeper game
+ * @version 0.1
+ * @date 2022-12-05 
+ */
+
 #include "minesweeper.h"
 
 /**
- * @brief Get an integer from the user and check if it was correctly got
+ * @brief Get an integer from stdin and check if it was correctly got
  * @return Integer given by user
  */
 
@@ -22,21 +30,35 @@ int getInteger()
 	}
 }
 
+/**
+ * @brief Create a IntPoint structure from the x and y coordinates
+ * 
+ * @param x X coordinate of the new point
+ * @param y Y coordinate of the new point
+ * @return New point
+ */
+
 IntPoint createIntPoint(int x, int y)
 {
-	IntPoint point;
+	IntPoint point; // New point
 
 	point.x = x;
 	point.y = y;
 	return point;
 }
 
+/**
+ * @brief Initialize the board
+ * 
+ * @param board Board being initialized
+ */
+
 void init(Board *board)
 {
-	int nbAddedMines = 0;
-	int iter = 0;
-	int i = 0;
-	int j = 0;
+	int nbAddedMines = 0; // Number of mines added to the board during initialization
+	int iter = 0; // Number of iterations to find a free space to add a mine. It's used to avoid an infinite loop
+	int i = 0; // Current row in the board
+	int j = 0; // Current column in the board
 
 	// If the last activated mine coordinates are negative it means it's not initialized, no mine has exploded.
 	board->lastActivatedMineCoord.x = -1;
@@ -160,6 +182,17 @@ void init(Board *board)
 	}
 }
 
+/**
+ * @brief Display the board with different symbols according to its content
+ * @ if the bomb has exploded
+ * F if there is a flag (it's marked)
+ * . if it's discovered and empty
+ * M if there is a mine that did not explode
+ * a blank space if it's neither marked nor discovered
+ * 
+ * @param board Displayed board
+ */
+
 void displayBoard(Board board)
 {
 	printf("   ");
@@ -212,6 +245,9 @@ void displayBoard(Board board)
 				else if(board.cells[i][j].isDiscovered){
 					printf(" . ");
 				}
+				else if(board.nbDiscoveredCells == board.nbDiscoveredCellsAtEnd && board.cells[i][j].isMine){
+					printf(" M ");
+				}
 				else{
 					printf("   ");
 				}
@@ -226,8 +262,6 @@ void displayBoard(Board board)
 		printf("+---");
 	}
 	printf("+\n");
-	printf("\n%d/%d\n", board.nbDiscoveredCells, board.nbDiscoveredCellsAtEnd);
-
 	if(board.lastActivatedMineCoord.x >=0 ){
 		printf("BOOUUUUUMMMMMM !!!!!\n");
 	}
@@ -238,6 +272,14 @@ void displayBoard(Board board)
 		printf("Mines : %d/%d\n", board.nbMarkedCells, board.nbMines);
 	}
 }
+
+/**
+ * @brief Enqueue all neighbors in the given queue
+ * 
+ * @param board Board checked
+ * @param cell Cell whose neighbors are checked
+ * @param cellsToCheck Queue where neighbors are enqueued. They will be checked in another function later on
+ */
 
 void enqueueNeighbors(Board board, IntPoint cell, Queue* cellsToCheck)
 {
@@ -279,9 +321,17 @@ void enqueueNeighbors(Board board, IntPoint cell, Queue* cellsToCheck)
 	}
 }
 
+/**
+ * @brief Make a move on the board
+ * 
+ * @param board Board that will be updated
+ * @param moveType 0 if we discover a cell and 1 if we mark/unmark it
+ * @param cell Cell modified
+ */
+
 void play(Board* board, int moveType, IntPoint cell)
 {
-	Queue cellsToCheck;
+	Queue cellsToCheck; // Queue of cells to check (recursively)
 
 	initQueue(&cellsToCheck);
 
@@ -325,10 +375,16 @@ void play(Board* board, int moveType, IntPoint cell)
 	freeQueue(&cellsToCheck);
 }
 
+/**
+ * @brief Launch a game of minesweeper on the given board
+ * 
+ * @param board Board where we play minesweeper
+ */
+
 void start(Board *board)
 {
-	int moveType = 0;
-	IntPoint cell;
+	int moveType = 0; // 0 if we discover a cell and 1 if we mark/unmark it
+	IntPoint cell; // Cell modified
 
 	cell.x = 0;
 	cell.y = 0;

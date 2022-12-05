@@ -66,7 +66,7 @@ give:
 	mkdir "meneust_robin_$(PROG)"
 	mkdir "meneust_robin_$(PROG)/bin" "meneust_robin_$(PROG)/save"
 	cp -rt "meneust_robin_$(PROG)" ./Makefile $(docdir) $(srcdir)
-	tar -cvf meneust_robin_$(PROG).tar meneust_robin_$(PROG)
+	zip -r meneust_robin_$(PROG).zip meneust_robin_$(PROG)
 	rm -r "meneust_robin_$(PROG)"
 
 # Run the executable without any arguments

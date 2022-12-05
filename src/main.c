@@ -1,4 +1,10 @@
-#include <stdio.h>
+/**
+ * @file main.c
+ * @author Robin MENEUST
+ * @brief Play minesweeper
+ * @version 0.1
+ * @date 2022-12-05
+ */
 #include <stdlib.h>
 #include "minesweeper.h"
 
@@ -11,7 +17,9 @@
 
 int main(int argc, char **argv)
 {
-	Board board;
+	Board board; // board where we play. It contains all the cells
+	
+	// The board is initialized
 	board.cells = NULL;
 	board.width = 0;
 	board.height = 0;

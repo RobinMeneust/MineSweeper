@@ -1,4 +1,18 @@
+/**
+ * @file queue.c
+ * @author Robin MENEUST
+ * @brief Implementing queues functions with queues containing IntPoint elements
+ * @version 0.1
+ * @date 2022-12-05
+ */
 #include "queue.h"
+
+
+/**
+ * @brief Initialize the queue
+ * 
+ * @param queue Queue initialized
+ */
 
 void initQueue(Queue *queue)
 {
@@ -6,9 +20,15 @@ void initQueue(Queue *queue)
 	queue->rear = NULL;
 }
 
+/**
+ * @brief Free the queue
+ * 
+ * @param queue Queue freed
+ */
+
 void freeQueue(Queue *queue)
 {
-	Node* p = NULL;
+	Node* p = NULL; // Temporary pointer used to free the nodes
 	while(queue->front != NULL){
 		p = queue->front;
 		queue->front = queue->front->next;
@@ -18,10 +38,16 @@ void freeQueue(Queue *queue)
 	queue->rear = NULL;
 }
 
+/**
+ * @brief Create a node
+ * 
+ * @return Node created
+ */
+
 Node *createNode()
 {
-	Node *node = (Node *)malloc(sizeof(Node));
-	IntPoint point;
+	Node *node = (Node *)malloc(sizeof(Node)); // New node
+	IntPoint point; // Element that will be in the node
 
 	if (node == NULL)
 	{
@@ -36,9 +62,16 @@ Node *createNode()
 	return node;
 }
 
+/**
+ * @brief Enqueue x in the queue
+ * 
+ * @param queue Queue where a new node is inserted
+ * @param x New element inserted
+ */
+
 void enqueue(Queue *queue, IntPoint x)
 {
-	Node *node = createNode();
+	Node *node = createNode(); // New node
 
 	node->element = x;
 	node->next = NULL;
@@ -55,10 +88,18 @@ void enqueue(Queue *queue, IntPoint x)
 	queue->rear = node;
 }
 
+/**
+ * @brief Dequeue an element from the queue
+ * 
+ * @param queue Queue from which an element is dequeued
+ * @return Element at the front of the queue, that has been removed from the it
+ */
+
 IntPoint dequeue(Queue *queue)
 {
-	Node* p = NULL;
-	IntPoint element;
+	Node* p = NULL; // Temporary pointer used to free the node
+	IntPoint element; // Element dequeued
+
 	if(queue->front!=NULL)
 	{
 		element = queue->front->element;
@@ -72,23 +113,17 @@ IntPoint dequeue(Queue *queue)
 	return element;
 }
 
-IntPoint peekFront(Queue queue)
-{
-	return queue.front->element;
-}
-
-void displayQueue(Queue queue)
-{
-	Node* p = queue.front;
-	while(p != NULL){
-		printf("(%d|%d) ", p->element.x, p->element.y);
-		p = p->next;
-	}
-}
+/**
+ * @brief Check if an element is in the queue
+ * 
+ * @param queue Queue where we search for elmnt
+ * @param elmnt Element searched
+ * @return 1 if it's in the queue and 0 if it's not
+ */
 
 int isInQueue(Queue queue, IntPoint elmnt)
 {
-	Node* p = queue.front;
+	Node* p = queue.front; // Pointer used to move in the queue to search elmnt
 
 	while(p != NULL){
 		if(p->element.x == elmnt.x && p->element.y == elmnt.y){
