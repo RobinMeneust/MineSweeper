@@ -10,7 +10,7 @@ AUTHOR = meneust_robin
 CC = gcc -Wall
 CP = cp -r
 RM = rm -rf
-PROG = TP9_Demineur
+PROG = minesweeper
 SRC = $(wildcard $(srcdir)*.c)
 OBJ = $(subst $(srcdir), $(bindir), $(SRC:.c=.o))
 HEAD = $(wildcard $(srcdir)*.h)
